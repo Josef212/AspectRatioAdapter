@@ -32,31 +32,53 @@ public class AsepectRatioAdapterEditor : Editor
 
         serializedObject.Update();
 
-        string serializedEditorStr = EditorWindowsExtensions.IsTablet ? "Tablet" : "Panoramic";
+        string serializedEditorStr = ScreenHelper.IsTablet ? "Tablet" : "Panoramic";
         
         EditorGUILayout.LabelField(serializedEditorStr, EditorStyles.boldLabel);
 
         EditorGUILayout.HelpBox(AsepectRatioAdapter.ResLog, MessageType.Warning);
-        EditorGUILayout.HelpBox(EditorWindowsExtensions.ResLog, MessageType.Info);
+        EditorGUILayout.HelpBox(ScreenHelper.ResLog, MessageType.Info);
 
-        if (EditorWindowsExtensions.IsTablet)
-            m_panoramicRectTransformEditor?.OnInspectorGUI();
-        else
+        if (ScreenHelper.IsTablet)
             m_tabletRectTransformEditor?.OnInspectorGUI();
+        else
+            m_panoramicRectTransformEditor?.OnInspectorGUI();
 
         serializedObject.ApplyModifiedProperties();
     }
 }
 
-public static class EditorWindowsExtensions
+public static class ScreenHelper
 {
-    public static bool IsTablet => GetMainGameViewSize().x / GetMainGameViewSize().y < 1.5f;
-    public static string ResLog => $"Width: {GetMainGameViewSize().x} x Height: {GetMainGameViewSize().y} (AR: {GetMainGameViewSize().x / GetMainGameViewSize().y}) -> IsTablet: {EditorWindowsExtensions.IsTablet}";
+    private static System.Reflection.MethodInfo s_getSizeOfMainGameViewMethod = null;
+
+    public static bool IsTablet
+    {
+        get
+        {
+            Vector2 windowSize = GetMainGameViewSize();
+            float aspectRatio = windowSize.x > windowSize.y ? windowSize.x / windowSize.y : windowSize.y / windowSize.x;
+            return aspectRatio < 1.5f;
+        }
+    }
+
+    public static string ResLog
+    {
+        get
+        {
+            Vector2 res = GetMainGameViewSize();
+            return $"Width: {res.x} x Height: {res.y} (AR: {res.x / res.y}) -> IsTablet: {ScreenHelper.IsTablet}";
+        }
+    }
 
     public static Vector2 GetMainGameViewSize()
     {
-        System.Type T = System.Type.GetType("UnityEditor.GameView,UnityEditor");
-        System.Reflection.MethodInfo GetSizeOfMainGameView = T.GetMethod("GetSizeOfMainGameView", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
-        return (Vector2)GetSizeOfMainGameView.Invoke(null, null);
+        if(s_getSizeOfMainGameViewMethod == null)
+        {
+            System.Type T = System.Type.GetType("UnityEditor.GameView,UnityEditor");
+            s_getSizeOfMainGameViewMethod = T.GetMethod("GetSizeOfMainGameView", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+        }
+
+        return (Vector2)s_getSizeOfMainGameViewMethod.Invoke(null, null);
     }
 }
