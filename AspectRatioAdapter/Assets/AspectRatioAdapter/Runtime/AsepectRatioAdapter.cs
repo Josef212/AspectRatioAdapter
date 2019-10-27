@@ -19,15 +19,7 @@ public sealed class AsepectRatioAdapter : MonoBehaviour
             RectTransform rect = transform as RectTransform;
             RectTransform reff = IsTablet ? m_tabletRectTransform : m_panoramicRectTransform;
 
-            rect.anchorMin = reff.anchorMin;
-            rect.anchorMax = reff.anchorMax;
-            rect.offsetMin = reff.offsetMin;
-            rect.offsetMax = reff.offsetMax;
-            rect.pivot = reff.pivot;
-            rect.sizeDelta = reff.sizeDelta;
-            rect.localPosition = reff.localPosition;
-            rect.localRotation = reff.localRotation;
-            rect.localScale = reff.localScale;
+            rect.CopyFrom(reff);
 
             return;
         }
@@ -44,12 +36,6 @@ public sealed class AsepectRatioAdapter : MonoBehaviour
 
     private void InitTransforms()
     {
-        RectTransform rectTransform = transform as RectTransform;
-        rectTransform.anchorMin = Vector2.zero;
-        rectTransform.anchorMax = Vector2.one;
-        rectTransform.offsetMin = Vector2.zero;
-        rectTransform.offsetMax = Vector2.zero;
-
         CreateRectTransformIfNeeded(ref m_panoramicRectTransform, "PanoramicRectTransform");
         CreateRectTransformIfNeeded(ref m_tabletRectTransform, "TabletRectTransform");
     }
@@ -61,7 +47,7 @@ public sealed class AsepectRatioAdapter : MonoBehaviour
             GameObject child = new GameObject(goName);
             //child.hideFlags = HideFlags.HideInHierarchy;
             rectTransform = child.AddComponent<RectTransform>();
-            rectTransform.SetParent(transform, false);
+            rectTransform.SetParent(transform.parent, false);
         }
     }
 }
