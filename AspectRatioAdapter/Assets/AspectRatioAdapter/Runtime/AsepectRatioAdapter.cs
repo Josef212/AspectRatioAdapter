@@ -45,7 +45,7 @@ public sealed class AsepectRatioAdapter : MonoBehaviour
         if(rectTransform == null)
         {
             GameObject child = new GameObject(goName);
-            //child.hideFlags = HideFlags.HideInHierarchy;
+            //child.hideFlags = HideFlags.HideInHierarchy; // TODO
             rectTransform = child.AddComponent<RectTransform>();
             rectTransform.SetParent(transform.parent, false);
         }

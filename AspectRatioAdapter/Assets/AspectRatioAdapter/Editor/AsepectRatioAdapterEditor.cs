@@ -36,9 +36,9 @@ public class AsepectRatioAdapterEditor : Editor
 
         GUI.enabled = false;
         EditorGUILayout.PropertyField(m_script);
-        EditorGUILayout.PropertyField(m_panoramicRectTransform);
-        EditorGUILayout.PropertyField(m_tabletRectTransform);
         GUI.enabled = true;
+
+        EditorGUILayout.Space();
 
         serializedObject.Update();
 
