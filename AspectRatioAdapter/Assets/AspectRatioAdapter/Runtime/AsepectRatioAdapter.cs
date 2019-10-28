@@ -26,6 +26,12 @@ public sealed class AsepectRatioAdapter : MonoBehaviour
 
         InitTransforms();
     }
+    
+    private void OnTransformParentChanged()
+    {
+        m_panoramicRectTransform?.SetParent(transform.parent);
+        m_tabletRectTransform?.SetParent(transform.parent);
+    }
 
 #if UNITY_EDITOR
     private void Reset()
