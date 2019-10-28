@@ -42,8 +42,6 @@ public class AsepectRatioAdapterEditor : Editor
 
         serializedObject.Update();
 
-        CheckSerializedTransformsHierarchy();
-
         string serializedEditorStr = ScreenHelper.IsTablet ? "Tablet" : "Panoramic";
         
         EditorGUILayout.LabelField(serializedEditorStr, EditorStyles.boldLabel);
@@ -72,24 +70,6 @@ public class AsepectRatioAdapterEditor : Editor
         if(dirty)
         {
             Repaint();
-        }
-    }
-
-    private void CheckSerializedTransformsHierarchy()
-    {
-        RectTransform panoramicRect = m_panoramicRectTransform.objectReferenceValue as RectTransform;
-        RectTransform tabletRect = m_tabletRectTransform.objectReferenceValue as RectTransform;
-
-        if (panoramicRect.parent != m_targetRectTransform.parent)
-        {
-            panoramicRect.SetParent(m_targetRectTransform.parent, false);
-            dirty = true;
-        }
-
-        if (tabletRect.parent != m_targetRectTransform.parent)
-        {
-            tabletRect.SetParent(m_targetRectTransform.parent, false);
-            dirty = true;
         }
     }
 }
