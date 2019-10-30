@@ -18,7 +18,7 @@ public class DebugInfo : MonoBehaviour
         int w = Screen.width, h = Screen.height;
         Rect m_rect = new Rect(0, h - (h * 5 / 100), w, h * 2 / 100);
 
-        GUI.Label(m_rect, AsepectRatioAdapter.ResLog, m_style);
+        GUI.Label(m_rect, $"Width: {Screen.width} x Height: {Screen.height} (AR: {Screen.width / (float)Screen.height}) -> IsTablet: {AsepectRatioAdapter.IsTablet}", m_style);
     }
 
     private GUIStyle m_style = new GUIStyle();

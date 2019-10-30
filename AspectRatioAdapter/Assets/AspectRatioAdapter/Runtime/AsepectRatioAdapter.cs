@@ -6,7 +6,6 @@
 public sealed class AsepectRatioAdapter : MonoBehaviour
 {
     public static bool IsTablet => Screen.width / (float)Screen.height < 1.5f;
-    public static string ResLog => $"Width: {Screen.width} x Height: {Screen.height} (AR: {Screen.width / (float)Screen.height}) -> IsTablet: {AsepectRatioAdapter.IsTablet}";
 
     [SerializeField] private RectTransform m_panoramicRectTransform = null;
     [SerializeField] private RectTransform m_tabletRectTransform = null;
@@ -14,19 +13,14 @@ public sealed class AsepectRatioAdapter : MonoBehaviour
    
     private void Awake()
     {
-        if (Application.isPlaying)
-        {
-            RectTransform rect = transform as RectTransform;
-            RectTransform reff = IsTablet ? m_tabletRectTransform : m_panoramicRectTransform;
+        if(!Application.isPlaying)
+            InitTransforms();
 
-            rect.CopyFrom(reff);
-
-            return;
-        }
-
-        InitTransforms();
+        RectTransform rect = transform as RectTransform;
+        RectTransform reff = IsTablet ? m_tabletRectTransform : m_panoramicRectTransform;
+        rect.CopyFrom(reff);
     }
-    
+
     private void OnTransformParentChanged()
     {
         m_panoramicRectTransform?.SetParent(transform.parent);
@@ -51,7 +45,7 @@ public sealed class AsepectRatioAdapter : MonoBehaviour
         if(rectTransform == null)
         {
             GameObject child = new GameObject(goName);
-            //child.hideFlags = HideFlags.HideInHierarchy; // TODO
+            child.hideFlags = HideFlags.HideInHierarchy;
             rectTransform = child.AddComponent<RectTransform>();
             rectTransform.SetParent(transform.parent, false);
         }

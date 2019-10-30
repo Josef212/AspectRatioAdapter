@@ -13,9 +13,9 @@ public class AsepectRatioAdapterEditor : Editor
     private Editor m_tabletRectTransformEditor = null;
 
     private RectTransform m_targetRectTransform = null;
+    private DrivenRectTransformTracker m_tracker;
 
     private SerializedProperty m_lastSerializedProperty = null;
-    private bool dirty = false;
 
     private void OnEnable()
     {
@@ -28,12 +28,18 @@ public class AsepectRatioAdapterEditor : Editor
 
         m_targetRectTransform = (target as AsepectRatioAdapter).transform as RectTransform;
         m_lastSerializedProperty = null;
+
+        if(!Application.isPlaying)
+            m_tracker.Add(target, m_targetRectTransform, DrivenTransformProperties.All);
+    }
+
+    private void OnDisable()
+    {
+        m_tracker.Clear();
     }
 
     public override void OnInspectorGUI()
     {
-        dirty = false;
-
         GUI.enabled = false;
         EditorGUILayout.PropertyField(m_script);
         GUI.enabled = true;
@@ -43,10 +49,7 @@ public class AsepectRatioAdapterEditor : Editor
         serializedObject.Update();
 
         string serializedEditorStr = ScreenHelper.IsTablet ? "Tablet" : "Panoramic";
-        
         EditorGUILayout.LabelField(serializedEditorStr, EditorStyles.boldLabel);
-
-        EditorGUILayout.HelpBox(AsepectRatioAdapter.ResLog, MessageType.Warning);
         EditorGUILayout.HelpBox(ScreenHelper.ResLog, MessageType.Info);
 
         bool isTablet = ScreenHelper.IsTablet;
@@ -62,49 +65,20 @@ public class AsepectRatioAdapterEditor : Editor
             m_lastSerializedProperty = currentRectTransformSP;
 
             // Copy current editting rect transform to the targe GO rect transform
+            if (!Application.isPlaying)
+            {
+                m_tracker.Clear();
+                DrivenRectTransformTracker.StartRecordingUndo();
+            }
+
             m_targetRectTransform.CopyFrom(currentRectTransformSP.objectReferenceValue as RectTransform);
+            if (!Application.isPlaying)
+            {
+                m_tracker.Add(target, m_targetRectTransform, DrivenTransformProperties.All);
+                DrivenRectTransformTracker.StopRecordingUndo();
+            }
         }
 
         serializedObject.ApplyModifiedProperties();
-
-        if(dirty)
-        {
-            Repaint();
-        }
-    }
-}
-
-public static class ScreenHelper
-{
-    private static System.Reflection.MethodInfo s_getSizeOfMainGameViewMethod = null;
-
-    public static bool IsTablet
-    {
-        get
-        {
-            Vector2 windowSize = GetMainGameViewSize();
-            float aspectRatio = windowSize.x > windowSize.y ? windowSize.x / windowSize.y : windowSize.y / windowSize.x;
-            return aspectRatio < 1.5f;
-        }
-    }
-
-    public static string ResLog
-    {
-        get
-        {
-            Vector2 res = GetMainGameViewSize();
-            return $"Width: {res.x} x Height: {res.y} (AR: {res.x / res.y}) -> IsTablet: {IsTablet}";
-        }
-    }
-
-    public static Vector2 GetMainGameViewSize()
-    {
-        if(s_getSizeOfMainGameViewMethod == null)
-        {
-            System.Type T = System.Type.GetType("UnityEditor.GameView,UnityEditor");
-            s_getSizeOfMainGameViewMethod = T.GetMethod("GetSizeOfMainGameView", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
-        }
-
-        return (Vector2)s_getSizeOfMainGameViewMethod.Invoke(null, null);
     }
 }
