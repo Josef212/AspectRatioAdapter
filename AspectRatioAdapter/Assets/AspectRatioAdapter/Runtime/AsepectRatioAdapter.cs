@@ -1,38 +1,61 @@
 ﻿using UnityEngine;
+using UnityEngine.EventSystems;
 
 [ExecuteAlways]
 [DisallowMultipleComponent]
 [RequireComponent(typeof(RectTransform))]
-public sealed class AsepectRatioAdapter : MonoBehaviour
+public sealed class AsepectRatioAdapter : UIBehaviour
 {
     public static bool IsTablet => Screen.width / (float)Screen.height < 1.5f;
+    private static bool WasTablet = IsTablet;
 
-    [SerializeField] private RectTransform m_panoramicRectTransform = null;
-    [SerializeField] private RectTransform m_tabletRectTransform = null;
+    [SerializeField] private bool m_applyChangeOnPlayMode = false;
 
-   
-    private void Awake()
+    [HideInInspector] [SerializeField] private RectTransform m_panoramicRectTransform = null;
+    [HideInInspector] [SerializeField] private RectTransform m_tabletRectTransform = null;
+
+
+    protected override void Awake()
     {
+#if UNITY_EDITOR
         if(!Application.isPlaying)
             InitTransforms();
+#endif // UNITY_EDITOR
 
-        RectTransform rect = transform as RectTransform;
-        RectTransform reff = IsTablet ? m_tabletRectTransform : m_panoramicRectTransform;
-        rect.CopyFrom(reff);
+        ApplyNeededTransform();
     }
 
-    private void OnTransformParentChanged()
+    protected override void OnRectTransformDimensionsChange()
+    {
+        if (!Application.isPlaying || m_applyChangeOnPlayMode)
+        {
+            if (WasTablet != IsTablet)
+            {
+                WasTablet = IsTablet;
+                ApplyNeededTransform();
+            }
+        }
+    }
+        
+    protected override void OnTransformParentChanged()
     {
         m_panoramicRectTransform?.SetParent(transform.parent);
         m_tabletRectTransform?.SetParent(transform.parent);
     }
 
 #if UNITY_EDITOR
-    private void Reset()
+    protected override void Reset()
     {
 
     }
-#endif
+#endif // UNITY_EDITOR
+
+    private void ApplyNeededTransform()
+    {
+        RectTransform rect = transform as RectTransform;
+        RectTransform reff = IsTablet ? m_tabletRectTransform : m_panoramicRectTransform;
+        rect.CopyFrom(reff);
+    }
 
     private void InitTransforms()
     {
@@ -40,7 +63,7 @@ public sealed class AsepectRatioAdapter : MonoBehaviour
         CreateRectTransformIfNeeded(ref m_tabletRectTransform, "TabletRectTransform");
     }
 
-    private void CreateRectTransformIfNeeded(ref RectTransform rectTransform, string goName = "AspectRatioAdapterChild")
+    private void CreateRectTransformIfNeeded(ref RectTransform rectTransform, string goName)
     {
         if(rectTransform == null)
         {

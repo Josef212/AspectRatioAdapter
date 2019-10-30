@@ -251,6 +251,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f57c0a557109064f9272e7c32a81e76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_applyChangeOnPlayMode: 0
   m_panoramicRectTransform: {fileID: 1974273890}
   m_tabletRectTransform: {fileID: 1526148459}
 --- !u!1 &1128059323
@@ -423,7 +424,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
+  m_SizeDelta: {x: 101.7, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1640234542
 GameObject:
@@ -524,5 +525,5 @@ RectTransform:
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
+  m_SizeDelta: {x: 82.76, y: 100}
   m_Pivot: {x: 1, y: 0}

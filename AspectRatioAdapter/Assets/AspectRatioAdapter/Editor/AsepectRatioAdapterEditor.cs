@@ -6,6 +6,7 @@ using UnityEditor;
 public class AsepectRatioAdapterEditor : Editor
 {
     private SerializedProperty m_script = null;
+    private SerializedProperty m_applyChangeOnPlayMode = null;
     private SerializedProperty m_panoramicRectTransform = null;
     private SerializedProperty m_tabletRectTransform = null;
 
@@ -23,6 +24,7 @@ public class AsepectRatioAdapterEditor : Editor
     private void OnEnable()
     {
         m_script = serializedObject.FindProperty("m_Script");
+        m_applyChangeOnPlayMode = serializedObject.FindProperty("m_applyChangeOnPlayMode");
         m_panoramicRectTransform = serializedObject.FindProperty("m_panoramicRectTransform");
         m_tabletRectTransform = serializedObject.FindProperty("m_tabletRectTransform");
 
@@ -48,14 +50,18 @@ public class AsepectRatioAdapterEditor : Editor
 
     public override void OnInspectorGUI()
     {
+        serializedObject.Update();
+
         GUI.enabled = false;
         EditorGUILayout.PropertyField(m_script);
         GUI.enabled = true;
 
-        EditorGUILayout.Space();
+        EditorGUILayout.PropertyField(m_applyChangeOnPlayMode, 
+            new GUIContent("Apply On Play", "Rect transform change will be applied if an aspect ration change is detected during play mode too."), 
+            true);
 
-        serializedObject.Update();
-        
+        EditorGUILayout.Space();
+                
         bool isTablet = ScreenHelper.IsTablet;
 
         string serializedEditorStr = isTablet ? "Tablet" : "Panoramic";
@@ -69,7 +75,7 @@ public class AsepectRatioAdapterEditor : Editor
 
         SerializedProperty currentRectTransformSP = isTablet ? m_tabletRectTransform : m_panoramicRectTransform;
 
-        if (EditorGUI.EndChangeCheck() || m_lastSerializedProperty != currentRectTransformSP)
+        if (EditorGUI.EndChangeCheck())// || m_lastSerializedProperty != currentRectTransformSP)
         {
             m_lastSerializedProperty = currentRectTransformSP;
             
