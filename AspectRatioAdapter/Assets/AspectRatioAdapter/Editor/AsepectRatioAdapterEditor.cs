@@ -14,8 +14,11 @@ public class AsepectRatioAdapterEditor : Editor
 
     private RectTransform m_targetRectTransform = null;
     private DrivenRectTransformTracker m_tracker;
+    private bool m_otherRectFold = false;
 
     private SerializedProperty m_lastSerializedProperty = null;
+
+    private GUIStyle m_boldFoldoutStyle = null;
 
     private void OnEnable()
     {
@@ -29,7 +32,12 @@ public class AsepectRatioAdapterEditor : Editor
         m_targetRectTransform = (target as AsepectRatioAdapter).transform as RectTransform;
         m_lastSerializedProperty = null;
 
-        if(!Application.isPlaying)
+        m_boldFoldoutStyle = new GUIStyle(EditorStyles.foldout)
+        {
+            fontStyle = FontStyle.Bold
+        };
+
+        if (!Application.isPlaying)
             m_tracker.Add(target, m_targetRectTransform, DrivenTransformProperties.All);
     }
 
@@ -47,12 +55,13 @@ public class AsepectRatioAdapterEditor : Editor
         EditorGUILayout.Space();
 
         serializedObject.Update();
-
-        string serializedEditorStr = ScreenHelper.IsTablet ? "Tablet" : "Panoramic";
-        EditorGUILayout.LabelField(serializedEditorStr, EditorStyles.boldLabel);
-        EditorGUILayout.HelpBox(ScreenHelper.ResLog, MessageType.Info);
-
+        
         bool isTablet = ScreenHelper.IsTablet;
+
+        string serializedEditorStr = isTablet ? "Tablet" : "Panoramic";
+        EditorGUILayout.HelpBox(ScreenHelper.ResLog, MessageType.Info);
+        EditorGUILayout.LabelField(serializedEditorStr, EditorStyles.boldLabel);
+
         Editor currentRectTransformEditor = isTablet ? m_tabletRectTransformEditor : m_panoramicRectTransformEditor;
 
         EditorGUI.BeginChangeCheck();
@@ -63,8 +72,7 @@ public class AsepectRatioAdapterEditor : Editor
         if (EditorGUI.EndChangeCheck() || m_lastSerializedProperty != currentRectTransformSP)
         {
             m_lastSerializedProperty = currentRectTransformSP;
-
-            // Copy current editting rect transform to the targe GO rect transform
+            
             if (!Application.isPlaying)
             {
                 m_tracker.Clear();
@@ -77,6 +85,20 @@ public class AsepectRatioAdapterEditor : Editor
                 m_tracker.Add(target, m_targetRectTransform, DrivenTransformProperties.All);
                 DrivenRectTransformTracker.StopRecordingUndo();
             }
+        }
+        
+        m_otherRectFold = EditorGUILayout.Foldout(m_otherRectFold,
+                    isTablet ? "Panoramic RectTransform" : "Tablet RectTransform",
+                    m_boldFoldoutStyle);
+        if (m_otherRectFold)
+        {
+            GUI.enabled = false;
+
+            Editor otherEditor = (currentRectTransformEditor == m_panoramicRectTransformEditor
+                ? m_tabletRectTransformEditor : m_panoramicRectTransformEditor);
+            otherEditor?.OnInspectorGUI();
+
+            GUI.enabled = true;
         }
 
         serializedObject.ApplyModifiedProperties();
