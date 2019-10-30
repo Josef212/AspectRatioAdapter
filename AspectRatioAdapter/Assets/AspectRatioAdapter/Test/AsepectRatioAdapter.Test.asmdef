@@ -1,0 +1,17 @@
+{
+    "name": "AsepectRatioAdapter.Test",
+    "references": [
+        "GUID:3528aacbac1929d4ebeb52e635f3966f"
+    ],
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": []
+}
