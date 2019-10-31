@@ -35,6 +35,14 @@ public sealed class AsepectRatioAdapter : UIBehaviour
                 ApplyNeededTransform();
             }
         }
+        
+#if UNITY_EDITOR
+        if (UnityEditor.Selection.activeTransform == transform || UnityEditor.Selection.transforms.Contains(transform))
+        {
+            (IsTablet ? m_tabletRectTransform : m_panoramicRectTransform).CopyFrom(transform as RectTransform);
+            // TODO: Repaint
+        }
+#endif
     }
         
     protected override void OnTransformParentChanged()
