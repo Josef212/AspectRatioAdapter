@@ -10,14 +10,7 @@ public class AsepectRatioAdapterEditor : Editor
     private SerializedProperty m_panoramicRectTransform = null;
     private SerializedProperty m_tabletRectTransform = null;
 
-    private Editor m_panoramicRectTransformEditor = null;
-    private Editor m_tabletRectTransformEditor = null;
-
-    private RectTransform m_targetRectTransform = null;
-    //private DrivenRectTransformTracker m_tracker;
     private bool m_otherRectFold = false;
-
-    private SerializedProperty m_lastSerializedProperty = null;
 
     private GUIStyle m_boldFoldoutStyle = null;
 
@@ -28,16 +21,7 @@ public class AsepectRatioAdapterEditor : Editor
         m_panoramicRectTransform = serializedObject.FindProperty("m_panoramicRectTransform");
         m_tabletRectTransform = serializedObject.FindProperty("m_tabletRectTransform");
 
-        m_panoramicRectTransformEditor = CreateEditor(m_panoramicRectTransform.objectReferenceValue);
-        m_tabletRectTransformEditor = CreateEditor(m_tabletRectTransform.objectReferenceValue);
-
-        m_targetRectTransform = (target as AsepectRatioAdapter).transform as RectTransform;
-        m_lastSerializedProperty = null;
-
-        m_boldFoldoutStyle = new GUIStyle(EditorStyles.foldout)
-        {
-            fontStyle = FontStyle.Bold
-        };
+        m_boldFoldoutStyle = new GUIStyle(EditorStyles.foldout) { fontStyle = FontStyle.Bold };
     }
 
     public override void OnInspectorGUI()

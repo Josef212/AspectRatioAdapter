@@ -5,7 +5,7 @@ using UnityEngine.EventSystems;
 [ExecuteAlways]
 [DisallowMultipleComponent]
 [RequireComponent(typeof(RectTransform))]
-public sealed class AsepectRatioAdapter : UIBehaviour
+public class AsepectRatioAdapter : UIBehaviour
 {
     public static bool IsTablet => ScreenHelper.IsTablet;
     private static bool WasTablet = IsTablet;
