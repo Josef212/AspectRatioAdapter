@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Linq;
+using UnityEngine;
 using UnityEngine.EventSystems;
 
 [ExecuteAlways]
@@ -6,7 +7,7 @@ using UnityEngine.EventSystems;
 [RequireComponent(typeof(RectTransform))]
 public sealed class AsepectRatioAdapter : UIBehaviour
 {
-    public static bool IsTablet => Screen.width / (float)Screen.height < 1.5f;
+    public static bool IsTablet => ScreenHelper.IsTablet;
     private static bool WasTablet = IsTablet;
 
     [SerializeField] private bool m_applyChangeOnPlayMode = false;
@@ -14,9 +15,12 @@ public sealed class AsepectRatioAdapter : UIBehaviour
     [HideInInspector] [SerializeField] private RectTransform m_panoramicRectTransform = null;
     [HideInInspector] [SerializeField] private RectTransform m_tabletRectTransform = null;
 
+    private RectTransform m_rectTransform = null;
+
 
     protected override void Awake()
     {
+        m_rectTransform = transform as RectTransform;
 #if UNITY_EDITOR
         if(!Application.isPlaying)
             InitTransforms();
@@ -25,7 +29,7 @@ public sealed class AsepectRatioAdapter : UIBehaviour
         ApplyNeededTransform();
     }
 
-    protected override void OnRectTransformDimensionsChange()
+    protected void Update()
     {
         if (!Application.isPlaying || m_applyChangeOnPlayMode)
         {
@@ -35,20 +39,19 @@ public sealed class AsepectRatioAdapter : UIBehaviour
                 ApplyNeededTransform();
             }
         }
-        
+
 #if UNITY_EDITOR
-        if (UnityEditor.Selection.activeTransform == transform || UnityEditor.Selection.transforms.Contains(transform))
+        if (m_rectTransform.hasChanged && !Application.isPlaying && (UnityEditor.Selection.activeTransform == m_rectTransform || UnityEditor.Selection.transforms.Contains(m_rectTransform)))
         {
-            (IsTablet ? m_tabletRectTransform : m_panoramicRectTransform).CopyFrom(transform as RectTransform);
-            // TODO: Repaint
+            (IsTablet ? m_tabletRectTransform : m_panoramicRectTransform).CopyFrom(m_rectTransform);
         }
 #endif
     }
-        
+
     protected override void OnTransformParentChanged()
     {
-        m_panoramicRectTransform?.SetParent(transform.parent);
-        m_tabletRectTransform?.SetParent(transform.parent);
+        m_panoramicRectTransform?.SetParent(m_rectTransform.parent);
+        m_tabletRectTransform?.SetParent(m_rectTransform.parent);
     }
 
 #if UNITY_EDITOR
@@ -60,9 +63,8 @@ public sealed class AsepectRatioAdapter : UIBehaviour
 
     private void ApplyNeededTransform()
     {
-        RectTransform rect = transform as RectTransform;
-        RectTransform reff = IsTablet ? m_tabletRectTransform : m_panoramicRectTransform;
-        rect.CopyFrom(reff);
+        RectTransform reff = ScreenHelper.IsTablet ? m_tabletRectTransform : m_panoramicRectTransform;
+        m_rectTransform.CopyFrom(reff);
     }
 
     private void InitTransforms()
@@ -78,7 +80,7 @@ public sealed class AsepectRatioAdapter : UIBehaviour
             GameObject child = new GameObject(goName);
             child.hideFlags = HideFlags.HideInHierarchy;
             rectTransform = child.AddComponent<RectTransform>();
-            rectTransform.SetParent(transform.parent, false);
+            rectTransform.SetParent(m_rectTransform.parent, false);
         }
     }
 }

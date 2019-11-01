@@ -14,7 +14,7 @@ public class AsepectRatioAdapterEditor : Editor
     private Editor m_tabletRectTransformEditor = null;
 
     private RectTransform m_targetRectTransform = null;
-    private DrivenRectTransformTracker m_tracker;
+    //private DrivenRectTransformTracker m_tracker;
     private bool m_otherRectFold = false;
 
     private SerializedProperty m_lastSerializedProperty = null;
@@ -38,14 +38,6 @@ public class AsepectRatioAdapterEditor : Editor
         {
             fontStyle = FontStyle.Bold
         };
-
-        if (!Application.isPlaying)
-            m_tracker.Add(target, m_targetRectTransform, DrivenTransformProperties.All);
-    }
-
-    private void OnDisable()
-    {
-        m_tracker.Clear();
     }
 
     public override void OnInspectorGUI()
@@ -65,45 +57,18 @@ public class AsepectRatioAdapterEditor : Editor
         bool isTablet = ScreenHelper.IsTablet;
 
         string serializedEditorStr = isTablet ? "Tablet" : "Panoramic";
+        EditorGUILayout.LabelField($"Current editing: {serializedEditorStr}", EditorStyles.boldLabel);
+
         EditorGUILayout.HelpBox(ScreenHelper.ResLog, MessageType.Info);
-        EditorGUILayout.LabelField(serializedEditorStr, EditorStyles.boldLabel);
 
-        Editor currentRectTransformEditor = isTablet ? m_tabletRectTransformEditor : m_panoramicRectTransformEditor;
-
-        EditorGUI.BeginChangeCheck();
-        currentRectTransformEditor?.OnInspectorGUI();
-
-        SerializedProperty currentRectTransformSP = isTablet ? m_tabletRectTransform : m_panoramicRectTransform;
-
-        if (EditorGUI.EndChangeCheck())// || m_lastSerializedProperty != currentRectTransformSP)
-        {
-            m_lastSerializedProperty = currentRectTransformSP;
-            
-            if (!Application.isPlaying)
-            {
-                m_tracker.Clear();
-                DrivenRectTransformTracker.StartRecordingUndo();
-            }
-
-            m_targetRectTransform.CopyFrom(currentRectTransformSP.objectReferenceValue as RectTransform);
-            if (!Application.isPlaying)
-            {
-                m_tracker.Add(target, m_targetRectTransform, DrivenTransformProperties.All);
-                DrivenRectTransformTracker.StopRecordingUndo();
-            }
-        }
-        
         m_otherRectFold = EditorGUILayout.Foldout(m_otherRectFold,
                     isTablet ? "Panoramic RectTransform" : "Tablet RectTransform",
                     m_boldFoldoutStyle);
         if (m_otherRectFold)
         {
             GUI.enabled = false;
-
-            Editor otherEditor = (currentRectTransformEditor == m_panoramicRectTransformEditor
-                ? m_tabletRectTransformEditor : m_panoramicRectTransformEditor);
+            Editor otherEditor = CreateEditor((isTablet ? m_panoramicRectTransform : m_tabletRectTransform).objectReferenceValue);
             otherEditor?.OnInspectorGUI();
-
             GUI.enabled = true;
         }
 
