@@ -1,0 +1,12 @@
+{
+    "name": "com.josef212.aspect-ratio-adapter",
+    "version": "0.9.0",
+    "displayName": "Aspect Ratio Adapter",
+    "description": "A simple solution to store two rect transform on a Game Object. One for panoramic layout and another for tablet layout and automatically swaps it.",
+    "unity": "2019.1.1",
+    "keywords": ["UI"],
+    "author": {
+        "name": "Josef21296",
+        "email": "jcasanovasv@hotmail.com"
+    }
+}
