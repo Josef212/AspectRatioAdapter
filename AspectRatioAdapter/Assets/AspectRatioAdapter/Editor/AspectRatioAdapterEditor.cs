@@ -2,8 +2,8 @@
 using UnityEditor;
 
 [CanEditMultipleObjects]
-[CustomEditor(typeof(AsepectRatioAdapter))]
-public class AsepectRatioAdapterEditor : Editor
+[CustomEditor(typeof(AspectRatioAdapter))]
+public class AspectRatioAdapterEditor : Editor
 {
     private SerializedProperty m_script = null;
     private SerializedProperty m_applyChangeOnPlayMode = null;
