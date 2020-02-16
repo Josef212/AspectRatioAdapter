@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEditor;
 
 [CanEditMultipleObjects]
@@ -12,7 +13,7 @@ public class AspectRatioAdapterEditor : Editor
 
     private bool m_otherRectFold = false;
 
-    private GUIStyle m_boldFoldoutStyle = null;
+    private Lazy<GUIStyle> m_boldFoldoutStyle = new Lazy<GUIStyle>(() => new GUIStyle(EditorStyles.foldout) { fontStyle = FontStyle.Bold });
 
     private void OnEnable()
     {
@@ -20,8 +21,6 @@ public class AspectRatioAdapterEditor : Editor
         m_applyChangeOnPlayMode = serializedObject.FindProperty("m_applyChangeOnPlayMode");
         m_panoramicRectTransform = serializedObject.FindProperty("m_panoramicRectTransform");
         m_tabletRectTransform = serializedObject.FindProperty("m_tabletRectTransform");
-
-        m_boldFoldoutStyle = new GUIStyle(EditorStyles.foldout) { fontStyle = FontStyle.Bold };
     }
 
     public override void OnInspectorGUI()
@@ -47,7 +46,7 @@ public class AspectRatioAdapterEditor : Editor
 
         m_otherRectFold = EditorGUILayout.Foldout(m_otherRectFold,
                     isTablet ? "Panoramic RectTransform" : "Tablet RectTransform",
-                    m_boldFoldoutStyle);
+                    m_boldFoldoutStyle.Value);
         if (m_otherRectFold)
         {
             GUI.enabled = false;

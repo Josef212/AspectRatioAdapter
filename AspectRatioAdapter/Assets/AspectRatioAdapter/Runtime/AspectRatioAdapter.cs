@@ -7,42 +7,41 @@ using UnityEngine.EventSystems;
 [RequireComponent(typeof(RectTransform))]
 public class AspectRatioAdapter : UIBehaviour
 {
-    public static bool IsTablet => ScreenHelper.IsTablet;
-    private bool WasTablet = IsTablet;
-
     [SerializeField] private bool m_applyChangeOnPlayMode = false;
 
     [HideInInspector] [SerializeField] private RectTransform m_panoramicRectTransform = null;
     [HideInInspector] [SerializeField] private RectTransform m_tabletRectTransform = null;
 
     private RectTransform RectTransform => transform as RectTransform;
-
-
+    
     protected override void Awake()
     {
+        AspectRatioChecker.AspectRatioChanged += AspectRatioChanged;
+        
 #if UNITY_EDITOR
         if(!Application.isPlaying)
             InitTransforms();
 #endif // UNITY_EDITOR
 
-        ApplyNeededTransform();
+        ApplyNeededTransform(AspectRatioChecker.IsTablet);
     }
 
-    protected void Update()
+    protected override void OnDestroy()
+    {
+        AspectRatioChecker.AspectRatioChanged -= AspectRatioChanged;
+    }
+
+    protected void AspectRatioChanged(bool isTablet)
     {
         if (!Application.isPlaying || m_applyChangeOnPlayMode)
         {
-            if (WasTablet != IsTablet)
-            {
-                WasTablet = IsTablet;
-                ApplyNeededTransform();
-            }
+            ApplyNeededTransform(isTablet);
         }
 
 #if UNITY_EDITOR
         if (RectTransform.hasChanged && !Application.isPlaying && (UnityEditor.Selection.activeTransform == RectTransform || UnityEditor.Selection.transforms.Contains(RectTransform)))
         {
-            (IsTablet ? m_tabletRectTransform : m_panoramicRectTransform).CopyFrom(RectTransform);
+            (isTablet ? m_tabletRectTransform : m_panoramicRectTransform).CopyFrom(RectTransform);
         }
 #endif
     }
@@ -60,9 +59,9 @@ public class AspectRatioAdapter : UIBehaviour
     }
 #endif // UNITY_EDITOR
 
-    private void ApplyNeededTransform()
+    private void ApplyNeededTransform(bool isTable)
     {
-        RectTransform reff = ScreenHelper.IsTablet ? m_tabletRectTransform : m_panoramicRectTransform;
+        RectTransform reff = isTable ? m_tabletRectTransform : m_panoramicRectTransform;
         RectTransform.CopyFrom(reff);
     }
 
